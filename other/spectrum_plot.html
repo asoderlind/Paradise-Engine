@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wave Spectrum Plot</title>
+    <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+        margin: 0;
+        padding: 0;
+        background-color: #f0f0f0;
+      }
+      #plot {
+        width: 80%;
+        margin: 20px auto;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Wave Spectrum Plot</h1>
+    <div id="plot"></div>
+    <script>
+      const PI = 3.14159265359;
+      const G = 9.81;
+      const KM = 370.0;
+      const CM = 0.23;
+
+      function square(x) {
+        return x * x;
+      }
+
+      function omega(k) {
+        return Math.sqrt(G * k * (1.0 + square(k / KM)));
+      }
+
+      function calculateSpectrum(k, windSpeed) {
+        const Omega = 0.84;
+        const kp = G * square(Omega / windSpeed);
+
+        const c = omega(k) / k;
+        const cp = omega(kp) / kp;
+
+        const Lpm = Math.exp(-1.25 * square(kp / k));
+        const gamma = 1.7;
+        const sigma = 0.08 * (1.0 + 4.0 * Math.pow(Omega, -3.0));
+        const Gamma = Math.exp(
+          -square(Math.sqrt(k / kp) - 1.0) / (2.0 * square(sigma))
+        );
+        const Jp = Math.pow(gamma, Gamma);
+        const Fp =
+          Lpm *
+          Jp *
+          Math.exp((-Omega / Math.sqrt(10.0)) * (Math.sqrt(k / kp) - 1.0));
+        const alphap = 0.006 * Math.sqrt(Omega);
+        const Bl = ((0.5 * alphap * cp) / c) * Fp;
+
+        const Fm = Math.exp(-0.25 * square(k / KM - 1.0));
+        const Bh = ((0.5 * 0.01 * CM) / c) * Fm * Lpm;
+
+        const a0 = Math.log(2.0) / 4.0;
+        const am = (0.13 * windSpeed) / CM;
+        const Delta = Math.tanh(
+          a0 + 4.0 * Math.pow(c / cp, 2.5) + am * Math.pow(CM / c, 2.5)
+        );
+
+        const S =
+          (1.0 / (2.0 * PI)) * Math.pow(k, -4.0) * (Bl + Bh) * (1.0 + Delta);
+
+        const dk = (2.0 * PI) / 1000; // Arbitrary domain size
+        const h = Math.sqrt(S / 2.0) * dk;
+
+        return h;
+      }
+
+      function plotMultipleSpectra(windSpeeds) {
+        const maxK = 0.14; // Limit on k
+        const numPoints = 500;
+        const data = [];
+
+        windSpeeds.forEach((windSpeed) => {
+          const kValues = [];
+          const heightValues = [];
+
+          for (let i = 0; i <= numPoints; i++) {
+            const k = (i / numPoints) * maxK;
+            kValues.push(k);
+            heightValues.push(calculateSpectrum(k, windSpeed));
+          }
+
+          data.push({
+            x: kValues,
+            y: heightValues,
+            type: "scatter",
+            mode: "lines",
+            line: { width: 2 },
+            name: `Wind Speed: ${windSpeed} m/s`,
+          });
+        });
+
+        const layout = {
+          title: "Wave Spectra for Multiple Wind Speeds",
+          xaxis: { title: "Wave Number (k)", range: [0, maxK] },
+          yaxis: { title: "Height (h)" },
+          margin: { t: 50, l: 60, r: 30, b: 50 },
+          legend: { x: 1, y: 1 },
+        };
+
+        Plotly.newPlot("plot", data, layout);
+      }
+
+      const windSpeeds = [5, 10, 15, 20, 25]; // Example wind speeds
+      plotMultipleSpectra(windSpeeds);
+    </script>
+  </body>
+</html>

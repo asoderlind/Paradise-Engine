@@ -1,12 +1,12 @@
 import { Component } from "@/ComponentSystem/Component";
 import ThreeJS from "@/Components/ThreeJSComponent";
 import * as THREE from "three";
-import OceanGerstner from "./OceanGerstner";
+import Ocean from "@/Components/OceanComponents/OceanFFT";
 import { ControlledProgramVariables } from "@/types";
 
 class OceanComponent extends Component {
   static CLASS_NAME = "OceanComponent";
-  ocean!: OceanGerstner;
+  ocean!: Ocean;
   controlledVariables!: ControlledProgramVariables;
   boxes!: THREE.Mesh[];
   numBoxes!: number;
@@ -32,7 +32,6 @@ class OceanComponent extends Component {
     this.ms_Scene = threejs.scene;
     this.ms_Camera = threejs.mainCamera;
 
-    /*
     this.ocean = new Ocean(this.ms_Renderer, this.ms_Camera, this.ms_Scene, {
       INITIAL_SIZE: 200.0,
       INITIAL_WIND_X: this.controlledVariables.oceanWindSpeedX,
@@ -46,17 +45,24 @@ class OceanComponent extends Component {
       RESOLUTION: 512,
       SIZE_OF_FLOAT: 4,
     });
-    */
-    this.ocean = new OceanGerstner(
-      this.ms_Renderer,
-      this.ms_Scene,
-      this.ms_Camera,
-      this.controlledVariables,
-    );
   }
 
   Update(deltaT: number) {
-    this.ocean.Update(deltaT);
+    this.ocean.deltaTime = deltaT;
+    this.ocean.render();
+    this.ocean.update();
+
+    const uniformWindX =
+      this.ocean.materialInitialSpectrum.uniforms.u_wind.value.x;
+    const uniformWindY =
+      this.ocean.materialInitialSpectrum.uniforms.u_wind.value.y;
+    const currentWindX = this.controlledVariables.oceanWindSpeedX;
+    const currentWindY = this.controlledVariables.oceanWindSpeedY;
+    if (uniformWindX !== currentWindX || uniformWindY !== currentWindY) {
+      this.ocean.windX = currentWindX;
+      this.ocean.windY = currentWindY;
+      this.ocean.changed = true;
+    }
   }
 }
 

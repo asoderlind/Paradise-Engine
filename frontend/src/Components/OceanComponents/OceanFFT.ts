@@ -380,76 +380,6 @@ class Ocean {
     this.screenQuad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2));
     this.scene.add(this.screenQuad);
 
-    // create debug plane 1
-    const geo1 = new THREE.PlaneGeometry(100, 100);
-    geo1.rotateY(-Math.PI);
-    geo1.translate(-55, 60, 0);
-    const material1 = new THREE.MeshBasicMaterial({
-      map: this.displacementMapFramebuffer.texture,
-    });
-    scene.add(new THREE.Mesh(geo1, material1));
-
-    // create debug plane 2
-    const geo2 = new THREE.PlaneGeometry(100, 100);
-    geo2.rotateY(-Math.PI);
-    geo2.translate(55, 60, 0);
-    const material2 = new THREE.MeshBasicMaterial({
-      map: this.normalMapFramebuffer.texture,
-    });
-    scene.add(new THREE.Mesh(geo2, material2));
-
-    const geo3 = new THREE.PlaneGeometry(100, 100);
-    geo3.rotateY(-Math.PI);
-    geo3.translate(-55, 165, 0);
-    const material3 = new THREE.MeshBasicMaterial({
-      map: this.mirror.texture.texture,
-    });
-    scene.add(new THREE.Mesh(geo3, material3));
-
-    const xoffset = 60;
-    /* psd planes */
-    // first plane for psd (out of 4)
-    const texture11 = this.spectrumFramebuffer.texture;
-    texture11.repeat.set(0.1, 0.1); // Use a portion of the texture
-    texture11.offset.set(0.9, 0.9); // Move the texture to center it
-    texture11.wrapS = THREE.ClampToEdgeWrapping;
-    texture11.wrapT = THREE.ClampToEdgeWrapping;
-
-    const geo11 = new THREE.PlaneGeometry(100, 100);
-    geo11.rotateY(-Math.PI);
-    geo11.translate(50 + xoffset, 165, 300);
-    const material4 = new THREE.MeshBasicMaterial({
-      map: texture11,
-    });
-    scene.add(new THREE.Mesh(geo11, material4));
-
-    const geo12 = new THREE.PlaneGeometry(100, 100);
-    geo12.rotateY(-Math.PI);
-    geo12.rotateZ(-Math.PI / 2);
-    geo12.translate(-50 + xoffset, 165, 300);
-    const material5 = new THREE.MeshBasicMaterial({
-      map: texture11,
-    });
-    scene.add(new THREE.Mesh(geo12, material5));
-
-    const geo13 = new THREE.PlaneGeometry(100, 100);
-    geo13.rotateY(-Math.PI);
-    geo13.rotateZ(Math.PI / 2);
-    geo13.translate(50 + xoffset, 265, 300);
-    const material6 = new THREE.MeshBasicMaterial({
-      map: texture11,
-    });
-    scene.add(new THREE.Mesh(geo13, material6));
-
-    const geo14 = new THREE.PlaneGeometry(100, 100);
-    geo14.rotateY(-Math.PI);
-    geo14.rotateZ(Math.PI);
-    geo14.translate(-50 + xoffset, 265, 300);
-    const material7 = new THREE.MeshBasicMaterial({
-      map: texture11,
-    });
-    scene.add(new THREE.Mesh(geo14, material7));
-
     // Initialise spectrum data
     this.generateSeedPhaseTexture();
 
@@ -595,9 +525,6 @@ class Ocean {
     this.renderer.render(this.scene, this.oceanCamera);
     this.renderer.setRenderTarget(null);
   }
-  /*
-   * This renderSpectrumFFT function renders the spectrum to the displacementMapFramebuffer
-   */
   renderSpectrumFFT() {
     // GPU FFT using Stockham formulation
     const iterations = Math.log2(this.resolution) * 2; // log2

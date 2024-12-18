@@ -107,14 +107,12 @@ const render = () => {
 };
 
 async function initSpecificScene() {
-  /*
   const displacementEntity = new Entity("displacementEntity");
   displacementEntity.AddComponent(new DisplacementComponent(1000));
   displacementEntity.Init();
-  */
 
   const noiseTerrainEntity = new Entity("terrainEntity");
-  //noiseTerrainEntity.AddComponent(new TerrainComponent(options));
+  noiseTerrainEntity.AddComponent(new TerrainComponent(options));
   noiseTerrainEntity.AddComponent(new DynamicSkyboxComponent(options));
   noiseTerrainEntity.Init();
 
@@ -122,7 +120,6 @@ async function initSpecificScene() {
   oceanEntity.AddComponent(new OceanComponent(options));
   oceanEntity.Init();
 
-  /*
   const heightMap = (
     displacementEntity.GetComponent(
       "DisplacementComponent",
@@ -148,7 +145,6 @@ async function initSpecificScene() {
   const objectManagerEntity = new Entity("objectManagerEntity");
   objectManagerEntity.AddComponent(new ObjectManager(options));
   objectManagerEntity.Init();
-  */
 
   render();
 }
